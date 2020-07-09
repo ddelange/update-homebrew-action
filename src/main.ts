@@ -50,13 +50,15 @@ async function run() {
     // note: this excludes pre-releases
     const latestRelease = await octokit.request(`GET /repos/${srcRepo}/releases/latest`)
 
-    const version = latestRelease.data.tag_name.slice(1)
+    const version = latestRelease.data.tag_name
     const releaseId = latestRelease.data.id
 
     const assets = await octokit.request(`GET /repos/${srcRepo}/releases/${releaseId}/assets`)
 
-    const tarballUrl = find(assets.data, a => a.name.includes("macos")).browser_download_url
+    const tarballUrl = `https://github.com/${tapRepo}/archive/${version}.tar.gz`
     const sha256 = await getUrlChecksum(tarballUrl, "sha256")
+
+    console.log(`sha256 for ${tarballUrl} is ${sha256}`)
 
     const formula = template({
       version,
@@ -80,10 +82,8 @@ async function run() {
       console.log("Pushing to git")
       for (const args of [
         ["add", formulaPath],
-        ["commit", "-m", `update to ${version}`],
-        ["tag", version],
+        ["commit", "-m", `Update ${packageName} to ${version}`],
         ["push"],
-        ["push", "--tags"],
       ]) {
         await execa("git", args, { cwd: brewRepoDir })
       }
