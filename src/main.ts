@@ -76,8 +76,8 @@ async function run() {
       await writeFile(formulaPath, formula)
 
       // check if the formula is OK
-      console.log("Auditing formula")
-      await execa("brew", ["audit", formulaPath])
+      // console.log("Auditing formula")
+      // await execa("brew", ["audit", formulaPath])
 
       console.log("Pushing to git")
       for (const args of [
